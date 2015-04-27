@@ -5,10 +5,11 @@
  */
 package api;
 
+import java.math.BigDecimal;
 import javax.json.Json;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriInfo;
-import javax.ws.rs.PathParam;
+import java.util.regex.*;
 import javax.ws.rs.Produces;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -41,11 +42,34 @@ public class ApiResource {
     @GET
     @Produces("application/json")
     public String getJson(@QueryParam("str") String str) {
-        return Json.createObjectBuilder()
-                .add("command", "play")
-                .add("song", Json.createObjectBuilder().add("artist", "cj").add("title","ibwys").build())
-                .build()
-                .toString();
+        try {
+            Pattern listenPattern = Pattern.compile("^listen?(( (.+)))");
+            Pattern fromPattern = Pattern.compile(" by(.+)?$");
+            Matcher listenMatcher = listenPattern.matcher(str);
+            listenMatcher.find();
+            String str2 = listenMatcher.group(0);
+            Matcher fromMatcher = fromPattern.matcher(str2);
+            fromMatcher.find();
+            String str3 = fromMatcher.group(0);
+            str2 = str2.replace("listen ", "").replace(str3, "");
+            str3 = str3.substring(4);
+            String command;
+            String artist;
+            String title;
+            command = "listen";
+            artist = str3;
+            title = str2;
+            return Json.createObjectBuilder()
+                    .add("command", command)
+                    .add("song", Json.createObjectBuilder().add("artist", artist).add("title",title).build())
+                    .build()
+                    .toString();
+        } catch (Exception e) {
+            return Json.createObjectBuilder()
+                    .add("error", e.toString())
+                    .build()
+                    .toString();
+        }
     }
 
     /**
