@@ -43,7 +43,7 @@ public class ApiResource {
     @Produces("application/json")
     public String getJson(@QueryParam("str") String str) {
         try {
-            Pattern listenPattern = Pattern.compile("^listen?(( (.+)))");
+            Pattern listenPattern = Pattern.compile("^listen to?(( (.+)))");
             Pattern fromPattern = Pattern.compile(" by(.+)?$");
             Matcher listenMatcher = listenPattern.matcher(str);
             listenMatcher.find();
@@ -51,7 +51,7 @@ public class ApiResource {
             Matcher fromMatcher = fromPattern.matcher(str2);
             fromMatcher.find();
             String str3 = fromMatcher.group(0);
-            str2 = str2.replace("listen ", "").replace(str3, "");
+            str2 = str2.replace("listen to ", "").replace(str3, "");
             str3 = str3.substring(4);
             String command;
             String artist;
@@ -65,10 +65,58 @@ public class ApiResource {
                     .build()
                     .toString();
         } catch (Exception e) {
-            return Json.createObjectBuilder()
-                    .add("error", e.toString())
-                    .build()
-                    .toString();
+            try {
+                Pattern listenPattern = Pattern.compile("^add?(( (.+)))");
+                Pattern fromPattern = Pattern.compile(" by(.+)?$");
+                Matcher listenMatcher = listenPattern.matcher(str);
+                listenMatcher.find();
+                String str2 = listenMatcher.group(0);
+                Matcher fromMatcher = fromPattern.matcher(str2);
+                fromMatcher.find();
+                String str3 = fromMatcher.group(0);
+                str2 = str2.replace("add ", "").replace(str3, "");
+                str3 = str3.substring(4);
+                String command;
+                String artist;
+                String title;
+                command = "add";
+                artist = str3;
+                title = str2;
+                return Json.createObjectBuilder()
+                        .add("command", command)
+                        .add("song", Json.createObjectBuilder().add("artist", artist).add("title",title).build())
+                        .build()
+                        .toString();
+            } catch (Exception e1) {
+                try {
+                    Pattern listenPattern = Pattern.compile("^remove?(( (.+)))");
+                    Pattern fromPattern = Pattern.compile(" by(.+)?$");
+                    Matcher listenMatcher = listenPattern.matcher(str);
+                    listenMatcher.find();
+                    String str2 = listenMatcher.group(0);
+                    Matcher fromMatcher = fromPattern.matcher(str2);
+                    fromMatcher.find();
+                    String str3 = fromMatcher.group(0);
+                    str2 = str2.replace("remove ", "").replace(str3, "");
+                    str3 = str3.substring(4);
+                    String command;
+                    String artist;
+                    String title;
+                    command = "remove";
+                    artist = str3;
+                    title = str2;
+                    return Json.createObjectBuilder()
+                            .add("command", command)
+                            .add("song", Json.createObjectBuilder().add("artist", artist).add("title",title).build())
+                            .build()
+                            .toString();
+                } catch (Exception e2) {
+                    return Json.createObjectBuilder()
+                            .add("error", "no match found")
+                            .build()
+                            .toString();
+                }
+            }
         }
     }
 
