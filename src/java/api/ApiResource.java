@@ -36,22 +36,37 @@ public class ApiResource {
 
     /**
      * Retrieves representation of an instance of api.ApiResource
+     * @param lang
      * @param str
      * @return an instance of java.lang.String
      */
     @GET
     @Produces("application/json")
-    public String getJson(@QueryParam("str") String str) {
+    public String getJson(@QueryParam("lang") String lang, @QueryParam("str") String str) {
+        String[] commands;
+        String by;
+        if (lang.equals("fr")) {
+            commands = new String[]{"écouter", "ajouter", "supprimer"};
+            by = "de";
+        } else if (lang.equals("en")) {
+            commands = new String[]{"listen to", "add", "remove"};
+            by = "by";
+        } else {
+            return Json.createObjectBuilder()
+                .add("error", "no lang found")
+                .build()
+                .toString();
+        }
         try {
-            Pattern listenPattern = Pattern.compile("^listen to?(( (.+)))");
-            Pattern fromPattern = Pattern.compile(" by(.+)?$");
+            Pattern listenPattern = Pattern.compile("^" + commands[0] + "?(( (.+)))");
+            Pattern fromPattern = Pattern.compile(" " + by + "(.+)?$");
             Matcher listenMatcher = listenPattern.matcher(str);
             listenMatcher.find();
             String str2 = listenMatcher.group(0);
             Matcher fromMatcher = fromPattern.matcher(str2);
             fromMatcher.find();
             String str3 = fromMatcher.group(0);
-            str2 = str2.replace("listen to ", "").replace(str3, "");
+            str2 = str2.replace(commands[0] + " ", "").replace(str3, "");
             str3 = str3.substring(4);
             String command;
             String artist;
@@ -66,15 +81,15 @@ public class ApiResource {
                     .toString();
         } catch (Exception e) {
             try {
-                Pattern listenPattern = Pattern.compile("^add?(( (.+)))");
-                Pattern fromPattern = Pattern.compile(" by(.+)?$");
+                Pattern listenPattern = Pattern.compile("^" + commands[1] + "?(( (.+)))");
+                Pattern fromPattern = Pattern.compile(" " + by + "(.+)?$");
                 Matcher listenMatcher = listenPattern.matcher(str);
                 listenMatcher.find();
                 String str2 = listenMatcher.group(0);
                 Matcher fromMatcher = fromPattern.matcher(str2);
                 fromMatcher.find();
                 String str3 = fromMatcher.group(0);
-                str2 = str2.replace("add ", "").replace(str3, "");
+                str2 = str2.replace(commands[1] + " ", "").replace(str3, "");
                 str3 = str3.substring(4);
                 String command;
                 String artist;
@@ -89,15 +104,15 @@ public class ApiResource {
                         .toString();
             } catch (Exception e1) {
                 try {
-                    Pattern listenPattern = Pattern.compile("^remove?(( (.+)))");
-                    Pattern fromPattern = Pattern.compile(" by(.+)?$");
+                    Pattern listenPattern = Pattern.compile("^" + commands[2] + "?(( (.+)))");
+                    Pattern fromPattern = Pattern.compile(" " + by + "(.+)?$");
                     Matcher listenMatcher = listenPattern.matcher(str);
                     listenMatcher.find();
                     String str2 = listenMatcher.group(0);
                     Matcher fromMatcher = fromPattern.matcher(str2);
                     fromMatcher.find();
                     String str3 = fromMatcher.group(0);
-                    str2 = str2.replace("remove ", "").replace(str3, "");
+                    str2 = str2.replace(commands[2] + " ", "").replace(str3, "");
                     str3 = str3.substring(4);
                     String command;
                     String artist;
@@ -123,7 +138,6 @@ public class ApiResource {
     /**
      * PUT method for updating or creating an instance of ApiResource
      * @param content representation for the resource
-     * @return an HTTP response with content of the updated or created resource.
      */
     @PUT
     @Consumes("application/json")
