@@ -45,7 +45,7 @@ public class ApiResource {
     public String getJson(@QueryParam("lang") String lang, @QueryParam("str") String str) {
         for (String s : str.split(" ")) {
             for (String s2 : new String[]{"écouter", "ajouter", "supprimer", "listen", "to", "add", "remove"}) {
-                if (Utility.Soundex(s) == Utility.Soundex(s2)) {
+                if (!s.equals(s2) && Utility.Soundex(s).equals(Utility.Soundex(s2))) {
                     str = str.replace(s, s2);
                 }
             }
